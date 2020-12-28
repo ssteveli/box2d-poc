@@ -47,32 +47,6 @@ public:
 
         groundBody->CreateFixture(&groundBox, 0.0f);
 
-        for (int i = 0; i < 25; i++)
-        {
-            b2Body *body;
-            b2BodyDef bodyDef;
-            bodyDef.type = b2_dynamicBody;
-
-            olc::vi2d p = {rand() % ScreenWidth(), rand() % ScreenHeight()};
-            b2Vec2 wp = b2olc::pixelsToWorld((float)p.x, (float)p.y);
-            bodyDef.position.Set(wp.x, wp.y);
-
-            body = world->CreateBody(&bodyDef);
-
-            b2PolygonShape dynamicBox;
-            dynamicBox.SetAsBox(0.75f, 3.0f);
-
-            b2FixtureDef fixtureDef;
-            fixtureDef.shape = &dynamicBox;
-            fixtureDef.density = 1.0f;
-            fixtureDef.friction = 0.3f;
-            fixtureDef.restitution = 0.8f;
-
-            body->CreateFixture(&fixtureDef);
-
-            bodies.push_back(body);
-        }
-
         return true;
     }
 
@@ -182,7 +156,8 @@ public:
                 break;
             }
         }
-        return true;
+
+        return !GetKey(olc::Key::ESCAPE).bPressed;
     }
 };
 
