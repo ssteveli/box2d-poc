@@ -36,15 +36,9 @@ public:
 
     void addBall()
     {
-        b2Body *body;
-        b2BodyDef bodyDef;
-        bodyDef.type = b2_dynamicBody;
 
         olc::vi2d p = GetMousePos();
         b2Vec2 wp = b2olc::pixelsToWorld((float)p.x, (float)p.y);
-
-        bodyDef.position.Set(wp.x, wp.y);
-        body = world->CreateBody(&bodyDef);
 
         b2CircleShape circle;
         circle.m_radius = 2.0f;
@@ -53,11 +47,34 @@ public:
         fixtureDef.shape = &circle;
         fixtureDef.density = 1.0f;
         fixtureDef.friction = 0.3f;
-        fixtureDef.restitution = 1.0f;
+        fixtureDef.restitution = 0.5f;
 
-        body->CreateFixture(&fixtureDef);
+        b2RevoluteJointDef jd;
+        jd.collideConnected = false;
 
-        bodies.push_back(body);
+        b2Body *prevBody = NULL;
+        for (int i = 0; i < 4; i++)
+        {
+            b2Body *body;
+            b2BodyDef bodyDef;
+            bodyDef.type = b2_dynamicBody;
+            bodyDef.position.Set(wp.x, wp.y + (circle.m_radius * 2 * i));
+            body = world->CreateBody(&bodyDef);
+
+            body->CreateFixture(&fixtureDef);
+
+            bodies.push_back(body);
+
+            if (prevBody != NULL)
+            {
+                b2Vec2 anchor(wp.x, wp.y + (circle.m_radius * i));
+                jd.Initialize(prevBody, body, anchor);
+
+                world->CreateJoint(&jd);
+            }
+
+            prevBody = body;
+        }
     }
 
     void addRect()
@@ -148,7 +165,7 @@ public:
             addRect();
         }
 
-        if (GetMouse(1).bPressed || GetMouse(1).bHeld)
+        if (GetMouse(1).bPressed)
         {
             addBall();
         }
