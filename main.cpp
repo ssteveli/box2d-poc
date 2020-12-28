@@ -17,6 +17,8 @@ private:
     int32 positionIterations = 3;
     std::vector<b2Body *> bodies;
 
+    float blockerRadius = 300.0f;
+
 public:
     Balls()
     {
@@ -118,6 +120,15 @@ public:
         rightBox.SetAsBox(0.1f, b2olc::scalarPixelsToWorld(ScreenHeight()));
         rightBody->CreateFixture(&rightBox, 0.0f);
 
+        b2BodyDef blockerBodyDef;
+        b2Vec2 blocker = b2olc::pixelsToWorld(ScreenWidth() / 2, ScreenHeight() / 2);
+        blockerBodyDef.position.Set(blocker.x, blocker.y);
+        b2Body *blockerBody = world->CreateBody(&blockerBodyDef);
+
+        b2CircleShape blockerCircle;
+        blockerCircle.m_radius = b2olc::scalarPixelsToWorld(blockerRadius);
+        blockerBody->CreateFixture(&blockerCircle, 0.0f);
+
         return true;
     }
 
@@ -145,6 +156,7 @@ public:
         world->Step(fElapsedTime, velocityIterations, positionIterations);
 
         Clear(olc::BLACK);
+        DrawCircle(ScreenWidth() / 2, ScreenHeight() / 2, blockerRadius, olc::CYAN);
         for (auto &body : bodies)
         {
             b2Fixture *f = body->GetFixtureList();
@@ -193,7 +205,7 @@ public:
 int main(int, char **)
 {
     Balls balls;
-    if (balls.Construct(800, 800, 1, 1))
+    if (balls.Construct(1900, 1600, 1, 1))
         balls.Start();
 
     return 0;
