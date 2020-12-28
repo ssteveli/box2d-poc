@@ -32,6 +32,58 @@ public:
         delete world;
     }
 
+    void addBall()
+    {
+        b2Body *body;
+        b2BodyDef bodyDef;
+        bodyDef.type = b2_dynamicBody;
+
+        olc::vi2d p = GetMousePos();
+        b2Vec2 wp = b2olc::pixelsToWorld((float)p.x, (float)p.y);
+
+        bodyDef.position.Set(wp.x, wp.y);
+        body = world->CreateBody(&bodyDef);
+
+        b2CircleShape circle;
+        circle.m_radius = 2.0f;
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &circle;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.3f;
+        fixtureDef.restitution = 1.0f;
+
+        body->CreateFixture(&fixtureDef);
+
+        bodies.push_back(body);
+    }
+
+    void addRect()
+    {
+        b2Body *body;
+        b2BodyDef bodyDef;
+        bodyDef.type = b2_dynamicBody;
+
+        olc::vi2d p = GetMousePos();
+        b2Vec2 wp = b2olc::pixelsToWorld((float)p.x, (float)p.y);
+
+        bodyDef.position.Set(wp.x, wp.y);
+        body = world->CreateBody(&bodyDef);
+
+        b2PolygonShape dynamicBox;
+        dynamicBox.SetAsBox(0.75f, 3.0f);
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &dynamicBox;
+        fixtureDef.density = 1.0f;
+        fixtureDef.friction = 0.3f;
+        fixtureDef.restitution = 0.8f;
+
+        body->CreateFixture(&fixtureDef);
+
+        bodies.push_back(body);
+    }
+
     bool OnUserCreate() override
     {
         b2olc::transX = ScreenWidth() / 2;
@@ -39,13 +91,32 @@ public:
         b2olc::screenHeight = ScreenHeight();
 
         b2BodyDef groundBodyDef;
-        groundBodyDef.position.Set(0.0f, -50.0f);
+        b2Vec2 bottom = b2olc::pixelsToWorld(ScreenWidth() / 2, ScreenHeight());
+        groundBodyDef.position.Set(bottom.x, bottom.y);
         b2Body *groundBody = world->CreateBody(&groundBodyDef);
 
         b2PolygonShape groundBox;
-        groundBox.SetAsBox(50.0f, 10.0f);
+        groundBox.SetAsBox(b2olc::scalarPixelsToWorld(ScreenWidth()), 0.1f);
 
         groundBody->CreateFixture(&groundBox, 0.0f);
+
+        b2BodyDef leftBodyDef;
+        b2Vec2 left = b2olc::pixelsToWorld(0.0f, 0.0f);
+        leftBodyDef.position.Set(left.x, left.y);
+        b2Body *leftBody = world->CreateBody(&leftBodyDef);
+
+        b2PolygonShape leftBox;
+        leftBox.SetAsBox(0.1f, b2olc::scalarPixelsToWorld(ScreenHeight()));
+        leftBody->CreateFixture(&leftBox, 0.0f);
+
+        b2BodyDef rightBodyDef;
+        b2Vec2 right = b2olc::pixelsToWorld(ScreenWidth(), 0.0f);
+        rightBodyDef.position.Set(right.x, right.y);
+        b2Body *rightBody = world->CreateBody(&rightBodyDef);
+
+        b2PolygonShape rightBox;
+        rightBox.SetAsBox(0.1f, b2olc::scalarPixelsToWorld(ScreenHeight()));
+        rightBody->CreateFixture(&rightBox, 0.0f);
 
         return true;
     }
@@ -63,54 +134,12 @@ public:
 
         if (GetMouse(0).bPressed || GetMouse(0).bHeld)
         {
-            b2Body *body;
-            b2BodyDef bodyDef;
-            bodyDef.type = b2_dynamicBody;
-
-            olc::vi2d p = GetMousePos();
-            b2Vec2 wp = b2olc::pixelsToWorld((float)p.x, (float)p.y);
-
-            bodyDef.position.Set(wp.x, wp.y);
-            body = world->CreateBody(&bodyDef);
-
-            b2PolygonShape dynamicBox;
-            dynamicBox.SetAsBox(0.75f, 3.0f);
-
-            b2FixtureDef fixtureDef;
-            fixtureDef.shape = &dynamicBox;
-            fixtureDef.density = 1.0f;
-            fixtureDef.friction = 0.3f;
-            fixtureDef.restitution = 0.8f;
-
-            body->CreateFixture(&fixtureDef);
-
-            bodies.push_back(body);
+            addRect();
         }
 
         if (GetMouse(1).bPressed || GetMouse(1).bHeld)
         {
-            b2Body *body;
-            b2BodyDef bodyDef;
-            bodyDef.type = b2_dynamicBody;
-
-            olc::vi2d p = GetMousePos();
-            b2Vec2 wp = b2olc::pixelsToWorld((float)p.x, (float)p.y);
-
-            bodyDef.position.Set(wp.x, wp.y);
-            body = world->CreateBody(&bodyDef);
-
-            b2CircleShape circle;
-            circle.m_radius = 2.0f;
-
-            b2FixtureDef fixtureDef;
-            fixtureDef.shape = &circle;
-            fixtureDef.density = 1.0f;
-            fixtureDef.friction = 0.3f;
-            fixtureDef.restitution = 1.0f;
-
-            body->CreateFixture(&fixtureDef);
-
-            bodies.push_back(body);
+            addBall();
         }
 
         world->Step(fElapsedTime, velocityIterations, positionIterations);

@@ -36,6 +36,16 @@ namespace b2olc
         return b2Vec2(_x, _y);
     }
 
+    float scalarPixelsToWorld(float v)
+    {
+        return v / scaleFactor;
+    }
+
+    float scalarWorldToPixels(float v)
+    {
+        return v * scaleFactor;
+    }
+
 } // namespace b2olc
 
 #endif
